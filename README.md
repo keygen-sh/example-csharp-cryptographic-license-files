@@ -1,4 +1,4 @@
-# Example C# Cryptographic Verification
+# Example C# Cryptographic License Files
 
 This is an example of how to verify and decrypt cryptographic license files in C#
 and .NET, using Ed25519 and AES-256-GCM.
@@ -17,7 +17,8 @@ Then run the program:
 dotnet run
 ```
 
-You should see log output indicating the current license key is valid:
+You should see log output indicating the current license file is valid as well
+as its decrypted contents:
 
 ```
 License file is valid! Decrypting...
