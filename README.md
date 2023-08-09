@@ -14,7 +14,8 @@ dotnet restore
 Then run the program:
 
 ```
-dotnet run
+dotnet run --path examples/license.lic \
+  --key AFCC0A-B8C07F-F77E6C-93FB02-9FC515-V3
 ```
 
 You should see log output indicating the current license file is valid as well

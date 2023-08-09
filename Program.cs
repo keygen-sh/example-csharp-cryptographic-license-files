@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Linq;
+using System.IO;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
@@ -10,8 +11,6 @@ using NSec.Cryptography;
 
 public class Program
 {
-  private const string licenseFile = "-----BEGIN LICENSE FILE-----\neyJlbmMiOiJsWjIySUlNL3FqRC9WdVByeUVzVFU3UjV3U1JZTW1aeE05WlBW\nV2d5cDYyT0hOUWplbXJXRkthVUJaUjc0elplWmFJbUoyc29lTGk4S2NqZVhK\nNjJPeUNvRFJRMk5WZUhvK0hxY0RSNEtkRUN2MlFiR3JVZ0VvdkJFelZCbWdX\nYlh5eTNnUUxNOTQ3MXBOUXRVNE9MVFhONmFka2gzdXdNeklRUS93b2U1SENq\naW5xVGFmSnJxcjhyQkc2emxORCtSb0VvT04wTlJlWTJyd0hZMGxPQkdNZlZU\nOWJ0WFAzNFFTTTBQbFhVNVNIZDhOVUp0MlZaVEh6QmlpakMrRnNaQ2dpSzcw\nWXNKN2wvV3pHNXVxUE1zYnZGYVgwSG4rczljRjZ2OHp0VVR5UWIrVGM4ZWdL\nTitJQXIydTZTNnVnM2RxaVVyZDNJUEZNU01ZQ0ZOZ2pSOXp0bmcrK0RXZDh4\nV2FCVmh0UDV1Tk9laEdZU0FrRlNyVk1xdjBnVkRuZXV2VHlleCtscisyVWds\nS0YwWkZ4WVNRTFlHWmtNMjVnV21WREVpeGNBNEJPektLM05NSlNLRjd5SW9T\nZmpvUTJYODJJT1NBQlRmSThHdk5teGZIUW1pVTA4aWFpMS9SWDNFcUJVWUpU\nK2N5Qkp5NG54RklHV1hFdFhjRnYyQVdEUm9yZmZYUGlBNk1DcThWZjlVMm5v\nY1NwWU9tQWM1UEh4Tlc5TjdmcEZvNFFOZEJXaVlac0VKZXk0bVY5UksvWjB0\najIzZnk1SVFweGc5NUpDbXUyWGxhNEk3NnlYNHQxTTFuaHRDOFo3UlJrNlBO\nR2dpd1pMM2NrYnhpRVREQ2NVYUg3d0xpelQ1TkdGa0hWNjY2TC8yTTM5SWFj\nZTVud09oYUdBcVJNQVNKMU9LK2M5OUZUREtzN09zUVpwTko0ZHcwcEZ0a3hG\nUGNWcVBIT015a1VtTW5tL0dyc0lYbmUxU1VJb29XVCtPSTlWamNNRVlHUWhC\nNHBJZ3czVzMwMHNNczhReDV2blVOMlNtb3VBaG1CcmU0eTdkdFgzRUFyMm03\nSWZMU0lnMkhxVU5jRVpSUklucGF1ckZ5YW5BdnRIemR1L08rNEk1YWN0cWdN\na3FqYjI5MU4rbkNaaHpNNHpkVkVEVkFEbm1yZnUyZzJqTlJNdWx6a044RmhR\ndTlJZTdWaFBHL2RaTTF0N2MrOTFac3lzUHZKc1RrcGRmUjdpbzROb3hQVm16\nT2YwRGtveFl2NlJNZWdCRGRsZUhDTDV2aDhRcWo1MkVpTnVXNXM0cnc4MXRF\nT0FOSWIvS25YdUtueUVLeUdCYWdpbTJKMVBra1ltajgzbVNLb29KMFlleXdY\nWG8yNGFuRDFqa0ZOL0RISVRkNWlWMmxmY1JYMDBwSHZ0NW5HMDdVcXJzZnZQ\nV2VFNVpWUENXZ01jSGxWM01ncGlMWHpnUi9VVXVSWnNZYm5CMHlJTDhHUHdH\nUWgzKyt4OGJhOS9MNGRGTGN3elcyV0JlTmU1T09rcTcvWXI1SXdGTWZ0dDd5\nTm1pTjR3ZnhTbXZ4cGcxNjBnVDZJeVFoYWIvTFZTTS96eXhhNUVKb0tIL0R4\nbTBELzNYNmFnZ21tUGgza3hCZUYweWNxbnkyMVhiZi8xQXBTbURHQ1JtaVE1\nVWJFSVJ5SUlIbXJoa1NEZmozdzFmd1BIV0dIWFQ4UUF2bjQ5WUNhTFpPYXZo\nWWo0bEZ0K2dQdXVaMUV1L1NTZEFoVisxMFU4MHFka3JqOC9HYmtaZlJRU3I0\ncTlncEc0TXIxOTh5K1R5elBzYUg3YnRadmprK3pkbXdSUEQ5UGtWNVpEVkM1\nT3hNYTN5R3Fla1FlVzN1VUY5VUpoejcrd1VGbnRjMGV4NHRCTDQ2N2J3bHg1\nWmpiR2YvOW5XeUZuMXR4Y2h5TjJISEs2allhb25JSG9kRXFGTE14RUNWMGFh\ndnBPT0RZbndLaXBrU2dQcnFIK0kxV1NuaVp5L3FTNU5rdnlJK012YmtiNU1a\nbW9iN09VdWFyVi92Y21oM1gwT3Zub0FhbUtQaC9vT2kycDNMOTVQUXZUbXBR\nVGFLaFZ5b3dNa1QwOExDZ29GcUVZWmNJMlhDdmFtdEovdnNkSWhqZWxINkow\nMWhzQkczVFlPRVl4M0piRzFsM0gvSUZyUGcxcmdNa3BwK2txR2RXL2p4blFN\ncDlFVkFvL28xMzNTZTdNTE91anBsYlRjV05EMnhUdHY1elEraXpJUmpsNXhB\ndmpkK2dYYWg1UFNlazZUMER3Ynl4R0J4ek5iRWpadm5wSTJsK0JaUTlKOFFk\nWU5TSjdFZzJ0TzhTWUh3MjZ2ZWhQY2poeEg3alhOMHM2aHdVMjAzNkk0TnRG\nODZoQUNCQ2NoMStubUczZnd6UnJaeVNmTFRocWFFc2lyaTdWdWJEQjg5NFJs\nV01jb2JkaGxjRHpCVUxubTFCNk5HOTJtZ2xUSUl4cE9WM2JNcUFJRGxXNkFE\nK2FQVjAvNklJdzBjanpSclBpMnkrMFlQSEwxenVqbmVjZ1V5ejVCdnpXNDUx\ndTUrdmx0Si91VFU2TFVjUWM1M1g3S3B3TDFSTUxKQ0t4Mm5CcW5IaWZ5RytF\nV29OaG5Ib2JXN0VPNldVT2QwZFhUUklUcno0M1ZYNUJoNnU1eTFxZ1NZMC9v\nTmJ1VE90Q0JYUkJqa2NTekJGVEh3YW0rNmVNMVljelNjTGpSU0p4Yk9HTDdj\nbzhkS1J4WklRT0JKL1BVSU9pU1Q3cVNIK1Q2RFVDVUY3aWx5NTBrUVdvZlpM\nQUJTNU5iSXRWenNjSGo0Q2UxNjA5VUNVbHNTd3hpSWlWazJ6Y3F6cVI0NEIx\nc1JQNXgvMThhbEFJZFpCdTA4enpsa3lsRUNpa1F2Sml4RHMxMlNyNmg1eGhY\nMGxVNEl5R0ZWVTZZTElRR1R2ZmI2WnNMYW1LZElJdjZlbVRWK3ZoR3czRG0w\nV3F5aHRmY3BMcEJCVCs1L01JR0xtTmFHQ3k3MUpnbDBmVXRCTDFZREdGcjFV\nemRvYTRNV3NxNEtGRnVueC9DRmRpcCsrMUdZSUVCUUJ2ZUVuUUdIb0xESytC\nVnJubkF1V3Z0S2E1ZVAwbEgyMHB5NTJoWGoyR2JLM2xac0lURzRveUhwRmJB\nbUJCdmFtOHNwckpGU2ZtZk8yNmRIci8zemlodndCR1VyNytOSVhHK01EdHpr\nS3ZUMUl0NldVcUJDc2YvTWloYU1zZHhrRjMrYVBITERVK05MNzBnT3BocUZF\nZnpIdGZ4ZVFiTCt2Qml3aG1uTlkraURYWnE0Qm5uYTFIaDMyeDlMcGc5WDg0\nbS9tRVNzZ01lS1R5TXYvMGFodm4zbkRURVJVRG91Rk9FSkU1b3BWS1puOGVp\nSXJ0czVUcEk0RHBKdHpVaFpNUXh4dWRNbHY0SldnMm9MVHFWUWtaQm1xTGlX\nT3RCTnpPTjkwMmFwWWxUbUVOWlQxKzVZRjJMcG1hODJZMm16ZUpNZHZrMitv\nTEJvbUN0Wmt1MGFMMUlDMHlGZjB6QythcjV2VzF5cEpOMWxmR3VleU5iS2No\nbDhGWGMrbFNjdkhGb0poZUlUcWdKOWtneFE3SXpVaC9JMHY0YU1Od25SZTJ6\nR0dEZU8xeTR6NXg3WVBKSU12TFpybldBY3puVThZSm1yUm0rTll6T0tvaGlN\nZzZJdkR3SmhWQkZVcHoyS1VxYkhyaEp1TUJvUHRpSmxkaktOMDVNRjgvZVRP\nRmNoSm4yRU1NWE4zeVY1RWIxTDgxRDlxUFRoNzY0eEluRUdlNnRQdWh0dFJu\nTWFrNythMFFzK3M3TnFtUW4yZFQxQmttM2lTb2szeWFQOWl2SnQxR0NwMy9r\nQVl2b0E9PS41YmpjYytJZ3JxZEF2WkRYLk5xVHhDL1g0VllaSS92MWp2dG5Q\nZlE9PSIsInNpZyI6IjRnRGdUQUNZcC9uN3BuekQyU0N5RUVLd1R0aEpmVmI5\nd2E1dnBkTUZKY2tPZUsrTTNNeWNpNEhrUlJEdW9VUzVUVnMzMC9FYXhmd09o\nd0ZjRUhJOUF3PT0iLCJhbGciOiJhZXMtMjU2LWdjbStlZDI1NTE5In0=\n-----END LICENSE FILE-----\n";
-  private const string licenseKey = "key/eyJ0ZXN0IjoxfQ==._f34UAAtNKM8TXGLlnblBGCLSy22Oa_gjp4jn0CpvEuwQ2gAcH0IntFKwtbyV5iWnH9_x8l0R144oHp2_GviAw==";
   private const string publicKey = "e8601e48b69383ba520245fd07971e983d06d22c4257cfd82304601479cee788";
 
   public class LicenseFile
@@ -21,9 +20,52 @@ public class Program
     public string alg { get; set; }
   }
 
-  public static void Main()
+  public static void Main(string[] args)
   {
-    // Parse signed license file (removing cert header, newlines and footer)
+    string licenseFilePath = null;
+    string licenseKey = null;
+
+    // Parse command line args
+    for (var i = 0; i < args.Length; i++)
+    {
+      var arg = args[i];
+
+      switch (arg)
+      {
+        case "--path":
+          licenseFilePath = args[i + 1];
+
+          break;
+        case "--key":
+          licenseKey = args[i + 1];
+
+          break;
+      }
+    }
+
+    if (string.IsNullOrEmpty(licenseFilePath))
+    {
+      Console.WriteLine("License file path is required: use the --path flag");
+
+      return;
+    }
+
+    if (string.IsNullOrEmpty(licenseKey))
+    {
+      Console.WriteLine("License key is required: use the --key flag");
+
+      return;
+    }
+
+    if (!File.Exists(licenseFilePath))
+    {
+      Console.WriteLine($"Path does not exist or is inaccessible: {licenseFilePath}");
+
+      return;
+    }
+
+    // Read and parse signed license file (removing cert header, newlines and footer)
+    var licenseFile = File.ReadAllText(licenseFilePath);
     var encodedPayload = Regex.Replace(licenseFile, "(^-----BEGIN LICENSE FILE-----\\n|\\n|-----END LICENSE FILE-----\\n$)", "");
     var payloadBytes = Convert.FromBase64String(encodedPayload);
     var payload = Encoding.UTF8.GetString(payloadBytes);
