@@ -14,7 +14,7 @@ dotnet restore
 Then run the program:
 
 ```
-dotnet run --path examples/license.lic \
+dotnet run --pretty-print --path examples/license.lic \
   --key AFCC0A-B8C07F-F77E6C-93FB02-9FC515-V3
 ```
 

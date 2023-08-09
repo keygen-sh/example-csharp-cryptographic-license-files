@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Linq;
+using System.Dynamic;
 using System.IO;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Engines;
@@ -24,6 +25,7 @@ public class Program
   {
     string licenseFilePath = null;
     string licenseKey = null;
+    bool prettyPrint = false;
 
     // Parse command line args
     for (var i = 0; i < args.Length; i++)
@@ -38,6 +40,10 @@ public class Program
           break;
         case "--key":
           licenseKey = args[i + 1];
+
+          break;
+        case "--pretty-print":
+          prettyPrint = true;
 
           break;
       }
@@ -161,7 +167,21 @@ public class Program
       }
 
       Console.WriteLine("License file was successfully decrypted!");
-      Console.WriteLine($"Decrypted: {plaintext}");
+
+      // Format JSON
+      var lic = plaintext;
+
+      if (prettyPrint)
+      {
+        var json = JsonSerializer.Deserialize<ExpandoObject>(plaintext);
+
+        lic = JsonSerializer.Serialize(json, new JsonSerializerOptions
+        {
+          WriteIndented = true
+        });
+      }
+
+      Console.WriteLine($"Decrypted: {lic}");
     }
     else
     {
